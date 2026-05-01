@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  background: #1f1633;
+  font-family: 'Nunito', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.stage {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(139, 111, 224, 0.25), transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(63, 166, 184, 0.18), transparent 50%),
+    #1f1633;
+}
+
+.parchment {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(232, 165, 68, 0.10), transparent 60%),
+    radial-gradient(ellipse at 100% 100%, rgba(91, 63, 184, 0.08), transparent 60%),
+    #fbf6e9;
+}
+
+.stars-bg {
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.6) 1px, transparent 1.5px),
+    radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.5) 1px, transparent 1.5px),
+    radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.6) 1px, transparent 1.5px),
+    radial-gradient(circle at 60% 85%, rgba(255, 255, 255, 0.4) 1px, transparent 1.5px),
+    radial-gradient(circle at 90% 60%, rgba(255, 255, 255, 0.5) 1px, transparent 1.5px);
+}
+
+.dotty {
+  background-image: radial-gradient(rgba(31, 22, 51, 0.05) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
+.display {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.phone-shadow {
+  box-shadow: 0 60px 120px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+@keyframes float-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes twinkle    { 0%, 100% { opacity: 0.3; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } }
+@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(232, 165, 68, 0.5); } 100% { box-shadow: 0 0 0 14px rgba(232, 165, 68, 0); } }
+
+.float       { animation: float-slow 4s ease-in-out infinite; }
+.twinkle     { animation: twinkle 2.5s ease-in-out infinite; }
+.pulse-ring  { animation: pulse-ring 1.8s ease-out infinite; }
+
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { scrollbar-width: none; }
