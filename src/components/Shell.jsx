@@ -1,6 +1,20 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Art, GemIcon, CoinIcon } from './ui.jsx';
 import XPBar from './XPBar.jsx';
+import BackgroundScene from './BackgroundScene.jsx';
+
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < breakpoint;
+  });
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [breakpoint]);
+  return isMobile;
+}
 
 function Header({ state, onParent }) {
   return (
@@ -33,7 +47,7 @@ function Header({ state, onParent }) {
   );
 }
 
-function TabBar({ tab, setTab }) {
+function TabBar({ tab, setTab, isMobile }) {
   const tabs = [
     {
       id: 'dashboard', label: 'Home',
@@ -64,7 +78,14 @@ function TabBar({ tab, setTab }) {
     },
   ];
   return (
-    <div className="absolute bottom-0 left-0 right-0 pb-7 pt-2 px-3 bg-gradient-to-t from-white via-white to-white/70 border-t border-parchment-200">
+    <div
+      className="absolute bottom-0 left-0 right-0 pt-2 px-3 bg-gradient-to-t from-white via-white to-white/70 border-t border-parchment-200"
+      style={{
+        paddingBottom: isMobile
+          ? 'max(12px, env(safe-area-inset-bottom))'
+          : '28px',
+      }}
+    >
       <div className="flex items-stretch justify-around">
         {tabs.map((t) => (
           <button
@@ -136,30 +157,56 @@ function PhoneFrame({ children }) {
 }
 
 export default function Shell({ tab, setTab, state, children }) {
+  const isMobile = useIsMobile();
   const showHeader = !['lesson', 'diagnostic', 'parent'].includes(tab);
   const tabBarTab = tab === 'lesson' || tab === 'diagnostic' ? '' : tab;
-  return (
-    <div className="stage">
-      <div className="text-center mb-6">
-        <div className="font-display text-4xl text-white" style={{ textShadow: '0 2px 0 rgba(0,0,0,0.3)' }}>
-          Algebra Quest
-        </div>
-        <div className="text-sm text-white/60 mt-1 uppercase tracking-[0.3em] font-extrabold">
-          Scholar's Academy
-        </div>
+
+  // Mobile: full-screen native feel, no phone frame, no decorative background
+  if (isMobile) {
+    return (
+      <div
+        className="fixed inset-0 parchment overflow-y-auto scrollbar-hide"
+        style={{
+          paddingTop: 'max(8px, env(safe-area-inset-top))',
+          paddingBottom: 80,
+        }}
+      >
+        {showHeader && <Header state={state} onParent={() => setTab('parent')} />}
+        {children}
+        <TabBar tab={tabBarTab} setTab={setTab} isMobile />
       </div>
-      <PhoneFrame>
-        <div
-          className="absolute inset-0 parchment overflow-y-auto pb-20 scrollbar-hide"
-          style={{ paddingTop: 52 }}
-        >
-          {showHeader && <Header state={state} onParent={() => setTab('parent')} />}
-          {children}
-          <TabBar tab={tabBarTab} setTab={setTab} />
+    );
+  }
+
+  // Desktop: phone frame on top of the magical background scene
+  return (
+    <div className="relative min-h-screen">
+      <BackgroundScene />
+      <div className="relative z-10 stage">
+        <div className="text-center mb-6">
+          <div
+            className="font-display text-4xl text-white"
+            style={{ textShadow: '0 2px 0 rgba(0,0,0,0.3), 0 0 30px rgba(244,200,120,0.25)' }}
+          >
+            Algebra Quest
+          </div>
+          <div className="text-sm text-white/70 mt-1 uppercase tracking-[0.3em] font-extrabold">
+            Scholar's Academy
+          </div>
         </div>
-      </PhoneFrame>
-      <div className="text-center mt-6 text-xs text-white/40 font-mono">
-        Tap around — progress saves locally · all 6 quests unlock as you complete them
+        <PhoneFrame>
+          <div
+            className="absolute inset-0 parchment overflow-y-auto pb-20 scrollbar-hide"
+            style={{ paddingTop: 52 }}
+          >
+            {showHeader && <Header state={state} onParent={() => setTab('parent')} />}
+            {children}
+            <TabBar tab={tabBarTab} setTab={setTab} isMobile={false} />
+          </div>
+        </PhoneFrame>
+        <div className="text-center mt-6 text-xs text-white/40 font-mono">
+          Tap around — progress saves locally · all 6 quests unlock as you complete them
+        </div>
       </div>
     </div>
   );

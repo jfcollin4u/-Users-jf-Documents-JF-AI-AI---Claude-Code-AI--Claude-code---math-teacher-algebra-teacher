@@ -63,6 +63,13 @@ export default function Lesson({ lessonId, onExit, onComplete, recordAttempt }) 
   const total = lesson.steps.length;
   const progress = Math.round((stepIdx / total) * 100);
 
+  // Mastery tracking: count practice (non-teach) steps
+  const practiceTotal = lesson.steps.filter((s) => s.kind !== 'teach').length;
+  const practiceIdx = lesson.steps.slice(0, stepIdx).filter((s) => s.kind !== 'teach').length;
+  const isPracticeStep = step && step.kind !== 'teach';
+  const practicePassed = isPracticeStep && feedback?.kind === 'correct';
+  const practiceCurrent = isPracticeStep ? practiceIdx + (practicePassed ? 1 : 0) : practiceIdx;
+
   function resetUI() {
     setPickedChoice(null);
     setTyped('');
@@ -141,7 +148,7 @@ export default function Lesson({ lessonId, onExit, onComplete, recordAttempt }) 
 
   return (
     <div className="px-4 py-3">
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-2">
         <button onClick={onExit} className="text-ink-500 text-sm font-extrabold">← Exit</button>
         <div className="flex-1 h-2 bg-parchment-100 rounded-full overflow-hidden border border-parchment-200">
           <div
@@ -151,6 +158,29 @@ export default function Lesson({ lessonId, onExit, onComplete, recordAttempt }) 
         </div>
         <span className="text-[10px] font-mono font-bold text-ink-500">{stepIdx + 1}/{total}</span>
       </div>
+
+      {isPracticeStep && (
+        <div className="flex items-center justify-end gap-1.5 mb-3">
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-ink-500">Practice</span>
+          <div className="flex items-center gap-1">
+            {Array.from({ length: practiceTotal }, (_, i) => {
+              const passed = i < practiceCurrent;
+              const current = i === practiceIdx && !practicePassed;
+              return (
+                <span
+                  key={i}
+                  className={`inline-block rounded-full transition-all ${
+                    passed ? 'bg-emerald w-2.5 h-2.5' : current ? 'bg-wizard w-2.5 h-2.5 ring-2 ring-wizard/30' : 'bg-parchment-200 w-2 h-2'
+                  }`}
+                />
+              );
+            })}
+          </div>
+          <span className="text-[10px] font-mono font-bold text-ink-700 ml-1">
+            {practiceCurrent}/{practiceTotal} ✓
+          </span>
+        </div>
+      )}
 
       <div className="rounded-3xl bg-white border-2 border-parchment-200 p-4 shadow-scroll">
         <div className="flex items-center gap-2 mb-1">
